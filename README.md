@@ -1,4 +1,3 @@
-# Breadth First Search
+# Dijkstra's Algorithm
 
-JavaScript implementation of breadth first search algorithm served as Flask web application.
-# dijkstra
+JavaScript implementation of Dijkstra's algorithm served as Flask web application.
