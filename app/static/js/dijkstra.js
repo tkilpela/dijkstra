@@ -95,12 +95,12 @@ class PriorityQueue{
     isEmpty(){
         return elements.length == 0;
     }
-    put(priority, item){
-        console.log(priority + " , " + item)
+    put(item, priority){
+        //console.log(priority + " , " + item)
         elements.push([priority, item]);
     }
     get(){
-        return elements.pop();
+        return elements.pop()[1];
     }
 }
 
@@ -118,29 +118,29 @@ class Grid{
         var json = this.boundaries.map(JSON.stringify);
         results = results.filter(result => {
             [x, y] = result;
-            return (0 < x && x < this.width-1) && (0 < y && y < this.height-1);
+            return ((0 < x && x < this.width-1) && (0 < y && y < this.height-1));
         });
         results = results.filter(result => {
             var search = JSON.stringify(result);
             return !json.includes(search);
         });
-        
         return results;
     }
 }
 
 class WeightedGrid extends Grid{
-    constructor(self, width, height){
+    weights = {};
+    constructor(width, height){
         super(width, height);
-        self.weights = {};
     }
 
-    cost(self, target){
-        return self.weights(target, 1)
+    cost(target, weights){
+        return (target in weights) ? weights.target : { another: 1 };
+        //return weights(target, 1);
     }
 }
 
-g = new Grid(16, 12);
+g = new WeightedGrid(16, 12);
 g.boundaries = walls;
 
 function dijkstra(grid, start, finish){
@@ -158,12 +158,12 @@ function dijkstra(grid, start, finish){
 
     while (!queue.isEmpty()){
         var current = queue.get();
-        console.log("current: "+current);
+        //console.log("current: "+current);
         if (current == finish) break;
-        console.log(grid.neighbors(current))
+        //console.log(grid.neighbors(current))
         for(next of grid.neighbors(current)){
-            console.log("test")
-            temp_cost = cost[current] + graph.cost(current, next)
+            //console.log("test")
+            temp_cost = cost[current] + grid.cost(current, next)
             if (!(next in cost) || (temp_cost < cost[next])){
                 cost[next] = temp_cost;
                 var priority = temp_cost;
@@ -185,21 +185,21 @@ var from = dijkstra(g, start, finish);
 
 console.log(from)
 
-
 function createPath(from, start, finish){
     var current = finish
     path = []
     while(current != start){
         path.push(current)
-        drawFoundTile(next[0], next[1], distance[next]);
+        //drawFoundTile(next[0], next[1], distance[next]);
         current = from[current]
     }
+    console.log("test");
     // add first node and reverse (the path is from finish to start)
     path.push(start)
     path.reverse()
     return path;
 }
 
-var path = createPath()
+var path = createPath(from, start, finish);
 
-console.log()
+console.log(path)
