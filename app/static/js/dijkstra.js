@@ -48,31 +48,25 @@ function drawFinish(x, y){
     ctx.fillStyle = '#0000FF';
     ctx.fill();
 }
-//function drawFoundTile(x, y, distance){
-function drawFoundTile(i, j){
+
+function drawFoundTile(x, y, distance){
+    if (distance == undefined){
+        distance = 0;
+    }
     ctx.beginPath();
-    ctx.rect(i*40, j*40, 40, 40);
+    ctx.rect(x*40, y*40, 40, 40);
     ctx.fillStyle = 'rgba(0,225,0,0.5)';
     ctx.fill();
-    //ctx.font = "15px Arial"
-    //ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-    //ctx.fillText(distance, (x*40)+2.5, (y*40)+14.5);
-    //ctx.fillText(distance, (x*40)+2.5, (y*40)+14.5);
+    ctx.font = "15px Arial"
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.fillText(distance, (x*40)+2.5, (y*40)+14.5);
+    ctx.fillText(distance, (x*40)+2.5, (y*40)+14.5);
 }
 
 function onClick(event){
     var mouseX = (event.clientX - (c.offsetLeft - c.scrollLeft)) - 2;
     var mouseY = (event.clientY - (c.offsetTop - c.scrollTop)) - 2;
     console.log(Math.floor(mouseX/2) + ", " + Math.floor(mouseY/2));
-    Math.floor(mouseX/2), Math.floor(mouseY/2)
-}
-
-function compareArrays(x, y){
-    var i = JSON.stringify(x);
-    var j = JSON.stringify(y);
-
-    if(i == j) return true;
-    else return false;
 }
 
 for(var i = 0; i < 16; i++){
@@ -100,7 +94,6 @@ class PriorityQueue{
         return elements.length == 0;
     }
     put(item, priority){
-        //console.log(priority + " , " + item)
         elements.push([priority, item]);
     }
     get(){
@@ -138,8 +131,13 @@ class WeightedGrid extends Grid{
         super(width, height);
     }
 
-    cost(target, weights){
-        return (target in weights) ? weights.target : { another: 1 };
+    cost(to){
+        if (this.weights.hasOwnProperty(to)){
+            return target;
+        }
+        else{
+            return 1;
+        }
     }
 }
 
@@ -157,16 +155,11 @@ function dijkstra(grid, start, finish){
 
     drawFinish(9, 8);
 
-    console.log(queue.isEmpty())
-
     while (!queue.isEmpty()){
         var current = queue.get();
-        //console.log("current: "+current);
         if (current == finish) break;
-        //console.log(grid.neighbors(current))
         for(next of grid.neighbors(current)){
-            //console.log("test")
-            temp_cost = cost[current] + grid.cost(current, next)
+            temp_cost = cost[current] + grid.cost(next)
             if (!(next in cost) || (temp_cost < cost[next])){
                 cost[next] = temp_cost;
                 var priority = temp_cost;
@@ -175,30 +168,22 @@ function dijkstra(grid, start, finish){
             }
         }
     }
-    console.log(from);
-    console.log(cost);
-    return from;
+    return [from, cost];
 }
 
-//drawFoundTile(next[0], next[1], distance[next]);
-//if(next[0] == finish[0] && next[1] == finish[1]){
-//    drawFinish(next[0], next[1]);
-//    queue = [];
-//}
+var result = dijkstra(g, start, finish);
 
-var from = dijkstra(g, start, finish);
+var from = result[0];
+var cost = result[1];
 
-//console.log(from)
-
-function recreatePath(from, start, finish){
+function recreatePath(from, cost, start, finish){
     var current = finish;
     var path = [];
     while(current != start){
         path.push(current);
-        drawFoundTile(current[0], current[1]);
+        drawFoundTile(current[0], current[1], cost[current]);
         current = from[current];
     }
-    console.log("test");
     // add first node and reverse (the path is from finish to start)
     path.push(start)
     drawFoundTile(start[0], start[1]);
@@ -206,6 +191,4 @@ function recreatePath(from, start, finish){
     return path;
 }
 
-var path = recreatePath(from, start, finish);
-
-console.log(path)
+var path = recreatePath(from, cost, start, finish);
