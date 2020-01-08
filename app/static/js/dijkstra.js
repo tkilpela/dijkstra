@@ -48,12 +48,16 @@ function drawFinish(x, y){
     ctx.fillStyle = '#0000FF';
     ctx.fill();
 }
-
-function drawFoundTile(x, y, distance){
+//function drawFoundTile(x, y, distance){
+function drawFoundTile(i, j){
     ctx.beginPath();
-    ctx.font = "15px Arial"
-    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.fillText(distance, (x*40)+2.5, (y*40)+14.5);
+    ctx.rect(i*40, j*40, 40, 40);
+    ctx.fillStyle = 'rgba(0,225,0,0.5)';
+    ctx.fill();
+    //ctx.font = "15px Arial"
+    //ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    //ctx.fillText(distance, (x*40)+2.5, (y*40)+14.5);
+    //ctx.fillText(distance, (x*40)+2.5, (y*40)+14.5);
 }
 
 function onClick(event){
@@ -136,7 +140,6 @@ class WeightedGrid extends Grid{
 
     cost(target, weights){
         return (target in weights) ? weights.target : { another: 1 };
-        //return weights(target, 1);
     }
 }
 
@@ -172,7 +175,9 @@ function dijkstra(grid, start, finish){
             }
         }
     }
-    return from, cost;
+    console.log(from);
+    console.log(cost);
+    return from;
 }
 
 //drawFoundTile(next[0], next[1], distance[next]);
@@ -183,23 +188,24 @@ function dijkstra(grid, start, finish){
 
 var from = dijkstra(g, start, finish);
 
-console.log(from)
+//console.log(from)
 
-function createPath(from, start, finish){
-    var current = finish
-    path = []
+function recreatePath(from, start, finish){
+    var current = finish;
+    var path = [];
     while(current != start){
-        path.push(current)
-        //drawFoundTile(next[0], next[1], distance[next]);
-        current = from[current]
+        path.push(current);
+        drawFoundTile(current[0], current[1]);
+        current = from[current];
     }
     console.log("test");
     // add first node and reverse (the path is from finish to start)
     path.push(start)
+    drawFoundTile(start[0], start[1]);
     path.reverse()
     return path;
 }
 
-var path = createPath(from, start, finish);
+var path = recreatePath(from, start, finish);
 
 console.log(path)
